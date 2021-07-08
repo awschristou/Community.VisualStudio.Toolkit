@@ -68,7 +68,7 @@ namespace Community.VisualStudio.Toolkit
                     }
                     else
                     {
-                        element.Resources.MergedDictionaries.Remove(ThemeResources);
+                        UnmergeStyles(element);
                         ImageThemingUtilities.SetThemeScrollBars(element, null);
                         ThemedDialogStyleLoader.SetUseDefaultThemedDialogStyles(element, false);
                         RestoreProperty(element, Control.ForegroundProperty, _originalForegroundProperty);
@@ -122,20 +122,40 @@ namespace Community.VisualStudio.Toolkit
         private static void MergeStyles(FrameworkElement element)
         {
             Collection<ResourceDictionary> dictionaries = element.Resources.MergedDictionaries;
-            if (!dictionaries.Contains(ThemeResources))
+            foreach (var themeResource in ThemeResources)
             {
-                dictionaries.Add(ThemeResources);
+                if (!dictionaries.Contains(themeResource))
+                {
+                    dictionaries.Add(themeResource);
+                }
             }
         }
 
-        private static ResourceDictionary ThemeResources { get; } = BuildThemeResources();
-
-        private static ResourceDictionary BuildThemeResources()
+        private static void UnmergeStyles(FrameworkElement element)
         {
-            ResourceDictionary resources = new ResourceDictionary();
+            Collection<ResourceDictionary> dictionaries = element.Resources.MergedDictionaries;
+            foreach (var themeResource in ThemeResources)
+            {
+                dictionaries.Remove(themeResource);
+            }
+        }
+
+        private static Collection<ResourceDictionary> ThemeResources { get; } = BuildThemeResources();
+
+        private static Collection<ResourceDictionary> BuildThemeResources()
+        {
+            Collection<ResourceDictionary> dictionaries = new Collection<ResourceDictionary>();
 
             try
             {
+                ResourceDictionary resources = new ResourceDictionary();
+                dictionaries.Add(resources);
+
+                var controlStyles = LoadControlStyles();
+                dictionaries.Add(controlStyles);
+
+                // TODO : Consider : The below statements could possibly move to ControlStyles.xaml
+
                 Thickness inputPadding = new Thickness(6, 8, 6, 8); // This is the same padding used by WatermarkedTextBox.
 
                 resources[ToolkitResourceKeys.InputPaddingKey] = inputPadding;
@@ -159,10 +179,44 @@ namespace Community.VisualStudio.Toolkit
                         new Setter(Control.PaddingProperty, new DynamicResourceExtension(ToolkitResourceKeys.InputPaddingKey))
                     }
                 };
+
+                // TODO : requires controlStyles
+                resources[typeof(PasswordBox)] = new Style
+                {
+                    TargetType = typeof(PasswordBox),
+                    BasedOn = (Style)controlStyles["PasswordBoxStyle"],
+                    Setters =
+                    {
+                        new Setter(Control.PaddingProperty, new DynamicResourceExtension(ToolkitResourceKeys.InputPaddingKey))
+                    }
+                };
             }
             catch (Exception ex) when (!ErrorHandler.IsCriticalException(ex))
             {
                 ex.Log();
+            }
+
+            return dictionaries;
+        }
+
+        private static ResourceDictionary LoadControlStyles()
+        {
+            ResourceDictionary resources = new ResourceDictionary();
+
+            try
+            {
+                // TODO : This fails: "Cannot locate resource 'themes/controlstyles.xaml'."
+                var uri = new Uri("/Community.VisualStudio.Toolkit;component/Themes/ControlStyles.xaml", UriKind.RelativeOrAbsolute);
+                resources = new ResourceDictionary()
+                {
+                    Source = uri
+                };
+
+                return resources;
+            }
+            catch (Exception e)
+            {
+                // TODO
             }
 
             return resources;

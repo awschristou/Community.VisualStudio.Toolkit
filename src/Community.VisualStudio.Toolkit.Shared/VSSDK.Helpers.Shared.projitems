@@ -70,4 +70,11 @@
     <Folder Include="$(MSBuildThisFileDirectory)Debugger\" />
     <Folder Include="$(MSBuildThisFileDirectory)Shell\" />
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\ControlStyles.xaml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
+  </ItemGroup>
 </Project>
