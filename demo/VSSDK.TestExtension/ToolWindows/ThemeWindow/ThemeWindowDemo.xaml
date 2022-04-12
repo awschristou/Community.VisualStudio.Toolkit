@@ -21,6 +21,38 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="10" Orientation="Vertical" Grid.IsSharedSizeScope="True">
+            <local:ThemedControl Label="ListView:" DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:ThemeWindowDemo}}">
+                <local:ThemedControl.Enabled>
+                    <ListView
+                        Height="120"
+                        ItemsSource="{Binding SampleItems}"
+                        SelectedItem="{Binding SelectedSampleItem}"
+                        >
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="True">
+                                <GridViewColumn Header="Name" Width="75" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="Age" Width="75" DisplayMemberBinding="{Binding Age}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </local:ThemedControl.Enabled>
+
+                <local:ThemedControl.Disabled>
+                    <ListView
+                        Height="120"
+                        ItemsSource="{Binding SampleItems}"
+                        SelectedItem="{Binding SelectedSampleItem}"
+                    >
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="True">
+                                <GridViewColumn Header="Name" Width="75" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="Age" Width="75" DisplayMemberBinding="{Binding Age}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </local:ThemedControl.Disabled>
+            </local:ThemedControl>
+
             <local:ThemedControl Label="Label:">
                 <local:ThemedControl.Enabled>
                     <Label>Enabled</Label>
